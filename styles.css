@@ -1,0 +1,48 @@
+body {
+    text-align: center;
+}
+
+h1 {
+    font-size: 100px;
+}
+
+h2 {
+    font-size: 80px;
+}
+
+div.vote-table, table, th, td {
+    border: 1px solid grey;
+    border-collapse: collapse;
+    padding: 15px;
+    margin: 20px auto;
+    width: 60%;
+}
+
+div.vote-table {
+    display: block;
+    margin: 0 auto;
+    border: none;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+}
+
+th, td {
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .vote-table {
+        width: 100%;
+    }
+
+    h1 {
+        font-size: 40px;
+    }
+
+    h2 {
+        font-size: 30px;
+    }
+}

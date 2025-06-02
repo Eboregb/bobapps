@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+	<title>Vote for D&D</title>
+	<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body>
+	<h1>Vote for D&D Dungeon Master</h1>
+	<h2 id="status-view">Form Status: </h2>
+
+	<iframe id="form" src="https://docs.google.com/forms/d/e/1FAIpQLScycqTCgzFfWXxJrkmVXyvz20IosDH7WKve2mGr9xidK3sFuQ/viewform?embedded=true" width="640" height="1147" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+	<a href="../results/index.html">View Results</a>
+
+	<script>
+		let statusvar = false;
+
+		if (statusvar) {
+			document.getElementById("status-view").innerText = "Form Status: Open";
+		}
+		else {
+			document.getElementById("status-view").innerText = "Form Status: Closed";
+			document.getElementById("form").remove();
+		}
+	</script>
+</body>
+</html>
