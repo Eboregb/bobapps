@@ -91,21 +91,9 @@
 
 		async function fetch_from_server(task) {
 			const passkey = document.getElementById("pass").value;
+			const url = "https://script.google.com/macros/s/AKfycbzhCFdro6Txm_8liWx76xh4kftV7_jLfi45bHNeu-WXdCz-F2XQcVgsFNrPE59WA6lE/exec";
 
-			const response = await fetch(
-				"https://script.google.com/macros/s/AKfycbzhCFdro6Txm_8liWx76xh4kftV7_jLfi45bHNeu-WXdCz-F2XQcVgsFNrPE59WA6lE/exec",
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
-						passkey: passkey,
-						task: task,
-					})
-				}
-			);
-
+			const response = await fetch(url);
 			const data = await response.json();
 			return data;
 		}
