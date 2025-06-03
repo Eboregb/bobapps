@@ -92,8 +92,12 @@
 		async function fetch_from_server(task) {
 			const passkey = document.getElementById("pass").value;
 			const url = "https://script.google.com/macros/s/AKfycbzhCFdro6Txm_8liWx76xh4kftV7_jLfi45bHNeu-WXdCz-F2XQcVgsFNrPE59WA6lE/exec";
-
-			const response = await fetch(url);
+			
+			const fullUrl = `${url}?task=${task}&passkey=${encodeURIComponent(passkey)}`;
+			const response = await fetch(fullUrl);
+			
+			if (!response.ok) return null;
+			
 			const data = await response.json();
 			return data;
 		}
