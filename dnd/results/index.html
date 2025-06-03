@@ -1,106 +1,129 @@
 <!DOCTYPE html>
-
 <html>
 <head>
-	<title>Current Results</title>
-	<link rel="stylesheet" href="../../styles.css">
+  <meta charset="utf-8" />
+  <title>Dungeon Master Voting Results</title>
+  <link rel="stylesheet" href="../../styles.css">
 </head>
 
 <body>
-	<h1>Dungeon Master voting results</h1>
-    
-	<input id="pass" type="password" placeholder="Enter Passkey">
-	<button id="submit-passkey" onclick="display_results()">Submit Passkey</button>
-	<br>
-	<button id="show-votes" onclick="build_vote_table()" style="display: none;">Show all voters and their votes</button>
+  <h1>Dungeon Master voting results</h1>
+  
+  <input id="pass" type="password" placeholder="Enter Passkey">
+  <button id="submit-passkey" onclick="display_results()">Submit Passkey</button>
+  <br>
+  <button id="show-votes" onclick="build_vote_table()" style="display: none;">
+    Show all voters and their votes
+  </button>
 
-	<div id="result">Verification is required before seeing results</div>
-	<div class="vote-table" id="vote-table"></div>
+  <div id="result">Verification is required before seeing results</div>
+  <div class="vote-table" id="vote-table"></div>
 
-	<script>
-		function make_table_box(type, name) {
-			let box = document.createElement(type);
-			box.textContent = name;
-			return box;	
-		}
+  <script>
+  // Helper to create a <th> or <td> with text content
+  function make_table_box(type, text) {
+    const el = document.createElement(type);
+    el.textContent = text;
+    return el;
+  }
 
-		async function build_vote_table() {
-			const div = document.getElementById("vote-table");
-			div.innerText = "Loading table...";
+  // Fetch data from the Apps Script Web App using GET + query parameters
+  async function fetch_from_server(task) {
+    const passkey = document.getElementById("pass").value;
+    const baseUrl = "https://script.google.com/macros/s/AKfycbzhCFdro6Txm_8liWx76xh4kftV7_jLfi45bHNeu-WXdCz-F2XQcVgsFNrPE59WA6lE/exec";
+    const fullUrl = `${baseUrl}?task=${task}&passkey=${encodeURIComponent(passkey)}`;
 
-			const dataObj = await fetch_from_server("Data");
-		
-			if (!dataObj || !Array.isArray(dataObj.data)) {
-				div.innerText = "Failed to load table!";
-				return;
-			}
+    try {
+      const response = await fetch(fullUrl);
+      if (!response.ok) {
+        console.error("Network error:", response.status, response.statusText);
+        return null;
+      }
+      const data = await response.json();
+      if (data.error) {
+        console.warn("Server returned error:", data.error);
+        return null;
+      }
+      return data;
+    } catch (err) {
+      console.error("Fetch failed:", err);
+      return null;
+    }
+  }
 
-			const data = dataObj.data;
+  // Display the IRV winner (or tie) after the user clicks “Submit Passkey”
+  async function display_results() {
+    document.getElementById("show-votes").style.display = "none";
+    document.getElementById("result").innerText = "Loading…";
 
-			const table = document.createElement("table");
+    const winnerData = await fetch_from_server("Winner");
 
-			const headerRow = document.createElement("tr");
-			headerRow.appendChild(make_table_box("th", "Timestamp"));
-			headerRow.appendChild(make_table_box("th", "Email Address"));
+    if (!winnerData) {
+      document.getElementById("result").innerText = "Error: Invalid passkey or no data.";
+      return;
+    }
 
-			for (let candidate in data[0]["Votes"]) {
-				headerRow.appendChild(make_table_box("th", candidate));
-			}
-			table.appendChild(headerRow);
+    // If the JSON has a `tie` property, show a tie message
+    if (winnerData.tie) {
+      document.getElementById("result").innerText =
+        "It has been determined to be a tie! The tied candidates are: " +
+        winnerData.candidates.join(", ");
+    }
+    // If the JSON has a `winner` property, show the winner
+    else if (winnerData.winner) {
+      document.getElementById("result").innerText = "The winner is: " + winnerData.winner + "!";
+      // Reveal the “Show all voters…” button now that passkey was correct
+      document.getElementById("show-votes").style.display = "inline-block";
+    }
+    else {
+      document.getElementById("result").innerText =
+        "Unexpected error: no winner or tie info returned.";
+    }
+  }
 
-			data.forEach(entry => {
-				const row = document.createElement("tr");
-				row.appendChild(make_table_box("td", entry["Timestamp"]));
-				row.appendChild(make_table_box("td", entry["Email Address"]));
+  // Build the full vote table when “Show all voters and their votes” is clicked
+  async function build_vote_table() {
+    const div = document.getElementById("vote-table");
+    div.innerText = "Loading table…";
 
-				for (let candidate in entry["Votes"]) {
-					row.appendChild(make_table_box("td", entry["Votes"][candidate]));
-				}
-				table.appendChild(row);
-			});
+    const dataObj = await fetch_from_server("Data");
+    if (!dataObj || !Array.isArray(dataObj.data)) {
+      div.innerText = "Failed to load table!";
+      return;
+    }
 
-			div.innerText = "";
-			div.appendChild(table);
-		}
+    const data = dataObj.data;  // Now this is an array of rows
 
-		async function display_results() {		
-			document.getElementById("show-votes").style.display = "inline-block";
-			document.getElementById("result").innerText = "Loading...";
+    // Create a <table> element
+    const table = document.createElement("table");
 
-			let winnerData = await fetch_from_server("Winner");
-		
-			if (!winnerData) {
-				document.getElementById("result").innerText = "Error: Invalid passkey.";
-				return;
-			}
+    // Header row: Timestamp, Email Address, then each candidate
+    const headerRow = document.createElement("tr");
+    headerRow.appendChild(make_table_box("th", "Timestamp"));
+    headerRow.appendChild(make_table_box("th", "Email Address"));
 
-			if (winnerData.tie) {
-				document.getElementById("result").innerText =
-					"It has been determined to be a tie! The tied candidates are: " +
-					winnerData.candidates.join(", ");
-			}
-			else if (winnerData.winner) {
-				document.getElementById("result").innerText =
-					"The winner is: " + winnerData.winner + "!";
-			}
-			else {
-				document.getElementById("result").innerText =
-					"Unexpected error: No winner or tie info returned.";
-			}
-		}
+    // The “Votes” object’s keys tell us the candidate names
+    for (let candidate in data[0]["Votes"]) {
+      headerRow.appendChild(make_table_box("th", candidate));
+    }
+    table.appendChild(headerRow);
 
-		async function fetch_from_server(task) {
-			const passkey = document.getElementById("pass").value;
-			const url = "https://script.google.com/macros/s/AKfycbzhCFdro6Txm_8liWx76xh4kftV7_jLfi45bHNeu-WXdCz-F2XQcVgsFNrPE59WA6lE/exec";
-			
-			const fullUrl = `${url}?task=${task}&passkey=${encodeURIComponent(passkey)}`;
-			const response = await fetch(fullUrl);
-			
-			if (!response.ok) return null;
-			
-			const data = await response.json();
-			return data;
-		}
-	</script>
+    // Now create one <tr> for each entry
+    data.forEach(entry => {
+      const rowEl = document.createElement("tr");
+      rowEl.appendChild(make_table_box("td", entry["Timestamp"]));
+      rowEl.appendChild(make_table_box("td", entry["Email Address"]));
+
+      for (let candidate in entry["Votes"]) {
+        rowEl.appendChild(make_table_box("td", entry["Votes"][candidate]));
+      }
+      table.appendChild(rowEl);
+    });
+
+    // Replace the div’s text with the finished table
+    div.innerText = "";
+    div.appendChild(table);
+  }
+  </script>
 </body>
 </html>
