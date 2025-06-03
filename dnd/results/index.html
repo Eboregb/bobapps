@@ -28,7 +28,7 @@
 			const div = document.getElementById("vote-table");
 			div.innerText = "Loading table...";
 
-			const dataObj = await fetch_from_server("Data");
+			const dataObj = await fetch_from_server("getData");
 		
 			if (!dataObj || !Array.isArray(dataObj.data)) {
 				div.innerText = "Failed to load table!";
@@ -67,7 +67,7 @@
 			document.getElementById("show-votes").style.display = "inline-block";
 			document.getElementById("result").innerText = "Loading...";
 
-			let winnerData = await fetch_from_server("Winner");
+			let winnerData = await fetch_from_server("getResult");
 		
 			if (!winnerData) {
 				document.getElementById("result").innerText = "Error: Invalid passkey.";
