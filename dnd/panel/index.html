@@ -92,10 +92,12 @@
 		async function display_toggle_button() {
 			const displayBox = document.getElementById("display-toggle");
 			const checkBox = document.getElementById("toggle-voting");
+
+			outBox.innerText = "Loading..."
 			try {
 				const response = await fetch_from_server("getPasskey");
 				if (await response.valid) {
-					if (load_toggle_state()) {
+					if (await load_toggle_state()) {
 						outBox.innerText = "Success!";
 						displayBox.style.display = "inline-block";
 						checkBox.disabled = false;
