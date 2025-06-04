@@ -28,6 +28,7 @@
 
 			try {
 				const checkData = await fetch_from_server("getActiveVoting");
+				console.log(checkData, checkData.checked);
 				checkBox.checked = checkData.checked;
 			} catch (err) {
 				console.error("Failed to fetch voting status:", err);
