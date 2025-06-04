@@ -36,12 +36,13 @@ th, td {
 .datetodate-selector {
 	border: 1px dotted grey;
 	padding: 8px;
+	margin: 0 auto;
 }
 
 .switch-board {
 	border: 1px dashed grey;
 	padding: 15px;
-	margin: 20px;
+	margin: 20px auto;
 	width: 40%;
 }
 
