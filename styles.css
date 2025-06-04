@@ -10,7 +10,7 @@ h2 {
 	font-size: 80px;
 }
 
-div.vote-table, table, th, td {
+.vote-table, table, th, td {
 	border: 1px solid grey;
 	border-collapse: collapse;
 	padding: 15px;
@@ -18,7 +18,7 @@ div.vote-table, table, th, td {
 	width: 60%;
 }
 
-div.vote-table {
+.vote-table {
 	display: block;
 	margin: 0 auto;
 	border: none;
@@ -33,18 +33,15 @@ th, td {
 	text-align: center;
 }
 
-@media (max-width: 768px) {
-	.vote-table {
-		width: 100%;
-	}
+.switch-board, div {
+	border: 1px dotted grey;
+	padding: 8px;
+}
 
-	h1 {
-		font-size: 40px;
-	}
-
-	h2 {
-		font-size: 30px;
-	}
+.switch-board {
+	border: 1px dashed grey;
+	padding: 15px;
+	margin: 20px;
 }
 
 /* Toggle switch (w3schools) */
@@ -108,4 +105,18 @@ input:checked + .slider:before {
 
 .slider.round:before {
 	border-radius: 50%;
+}
+
+@media (max-width: 768px) {
+	.vote-table {
+		width: 100%;
+	}
+
+	h1 {
+		font-size: 40px;
+	}
+
+	h2 {
+		font-size: 30px;
+	}
 }
