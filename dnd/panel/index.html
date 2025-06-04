@@ -14,9 +14,9 @@
 	<div id="output-box">Verification required</div>
 	<br>
 
-	<div class="switch-board">
+	<div class="switch-board" id="display-toggle" style="display: none;">
 		<div>
-			<label class="switch" id="display-toggle" style="display: none;">
+			<label class="switch">
 				<input id="toggle-voting" type="checkbox" onclick="toggle_voting()">
 				<span class="slider round"></span>
 			</label>
@@ -24,6 +24,7 @@
 
 		<div class="datetodate-selector">
 			Automatic activation and deactivation for Voting
+			<br>
 			<br>
 			From <input id="start-date" type="date"> To <input id="end-date" type="date">
 		</div>
