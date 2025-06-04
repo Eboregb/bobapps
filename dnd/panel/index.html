@@ -46,7 +46,7 @@
 
 			if (task === "setActiveVoting") {
 				const checkBox = document.getElementById("toggle-voting");
-				url.searchParams.append("value", !checkBox.checked);
+				url.searchParams.append("value", checkBox.checked);
 			}
 
 			const response = await fetch(url.toString());
@@ -74,9 +74,6 @@
 				const result = await fetch_from_server("setActiveVoting");
 				if (!result || !result.success) {
 					outBox.innerText = "A Server-side Script has failed. This cannot be reattempted.";
-				}
-				else {
-					checkBox.checked = !checkBox.checked
 				}
 			} catch (err) {
 				console.error("Error toggling voting:", err);
