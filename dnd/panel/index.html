@@ -1,5 +1,112 @@
 <!DOCTYPE html>
-
 <html>
+<head>
+	<title>Admin Panel | Bob Apps</title>
+	<link rel="stylesheet" href="../../styles.css">
+</head>
 
+<body>
+	<h1>Admin Panel</h1>
+
+	<input id="pass" type="password" placeholder="Enter Passkey">
+	<button id="submit-passkey" onclick="display_toggle_button()">Submit Passkey</button>
+	<br>
+	<div id="output-box">Verification required</div>
+	<br>
+	<label class="switch" id="display-toggle" style="display: none;">
+		Toggle Voting
+		<input type="checkbox" id="toggle-voting" onclick="toggle_voting()">
+		<span class="slider round"></span>
+	</label>
+
+	<script>
+		let votingToggleLock = false;
+		const outBox = document.getElementById("output-box");
+
+		async function load_toggle_state() {
+			const checkBox = document.getElementById("toggle-voting");
+
+			try {
+				const checkData = await fetch_from_server("getActiveVoting");
+				checkBox.checked = checkData.checked;
+			} catch (err) {
+				console.error("Failed to fetch voting status:", err);
+				outBox.innerText = "Could not load background infomation.";
+				return false;
+			}
+			return true;
+		};
+
+		async function fetch_from_server(task) {
+			const passkey = document.getElementById("pass").value;
+			const baseUrl = "https://script.google.com/macros/s/AKfycbzhCFdro6Txm_8liWx76xh4kftV7_jLfi45bHNeu-WXdCz-F2XQcVgsFNrPE59WA6lE/exec";
+
+			const url = new URL(baseUrl);
+			url.searchParams.append("passkey", passkey);
+			url.searchParams.append("task", task);
+
+			if (task === "setActiveVoting") {
+				const checkBox = document.getElementById("toggle-voting");
+				url.searchParams.append("value", !checkBox.checked);
+			}
+
+			const response = await fetch(url.toString());
+			if (!response.ok) {
+				throw new Error(`Server error: ${response.status}`);
+				outBox.innerText = "An Unexpected Error has occured.";
+			}
+
+			const data = await response.json();
+			return data;
+		}
+
+		async function toggle_voting() {
+			const checkBox = document.getElementById("toggle-voting");
+
+			if (votingToggleLock) {
+				alert("Toggle already in progress.");
+				return;
+			}
+
+			votingToggleLock = true;
+			checkBox.disabled = true;
+
+			try {
+				const result = await fetch_from_server("setActiveVoting");
+				if (!result || !result.success) {
+					outBox.innerText = "A Server-side Script has failed. This cannot be reattempted.";
+				}
+				else {
+					checkBox.checked = !checkBox.checked
+				}
+			} catch (err) {
+				console.error("Error toggling voting:", err);
+				outBox.innerText = "Error communicating with server.";
+			}
+
+			checkBox.disabled = false;
+			votingToggleLock = false;
+		}
+
+		async function display_toggle_button() {
+			const displayBox = document.getElementById("display-toggle");
+			const checkBox = document.getElementById("toggle-voting");
+			try {
+				const response = await fetch_from_server("getPasskey");
+				if (await response.valid) {
+					if (load_toggle_state()) {
+						outBox.innerText = "Success!";
+						displayBox.style.display = "inline-block";
+						checkBox.disabled = false;
+					}
+				} else {
+					outBox.innerText = "Invalid passkey.";
+				}
+			} catch (err) {
+				console.error("Error getting passkey:", err);
+				outBox.innerText = "Error communicating with server.";
+			}
+		}
+	</script>
+</body>
 </html>
