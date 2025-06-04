@@ -40,7 +40,7 @@ th, td {
 	width: 40%;
 }
 
-.switch-board.div {
+.switch-board > div {
 	margin: 5px;
 }
 
