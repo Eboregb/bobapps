@@ -11,7 +11,7 @@
 	<input id="pass" type="password" placeholder="Enter Passkey">
 	<button id="submit-passkey" onclick="display_toggle_button()">Submit Passkey</button>
 	<br>
-	<div id="output-box">Verification required</div>
+	<div id="main-output-box">Verification required</div>
 	<br>
 
 	<div class="switch-board" id="display-toggle" style="display: none;">
@@ -23,21 +23,28 @@
 				<input id="toggle-voting" type="checkbox" onclick="toggle_voting()">
 				<span class="slider round"></span>
 			</label>
+			<br>
+			<div id="toggle-output-box"></div>
 		</div>
 
 		<div class="datetodate-selector">
-			Automatic activation and deactivation for Voting
+			Automatic activation and deactivation for voting (will override manual toggle)
 			<br>
 			<br>
 			From <input id="start-date" type="date"> To <input id="end-date" type="date">
+			<br>
+			<button id="submit-date" onclick="set_date()">Submit</button>
+			<button id="get-date" onclick="get_date()">Current Times</button>
+			<br>
+			<div id="date-output-box"></div>
 		</div>
 	</div>
 
 	<script>
 		let votingToggleLock = false;
-		const outBox = document.getElementById("output-box");
 
 		async function load_toggle_state() {
+			const outBox = document.getElementById("main-output-box");
 			const checkBox = document.getElementById("toggle-voting");
 
 			try {
@@ -62,12 +69,22 @@
 			if (task === "setActiveVoting") {
 				const checkBox = document.getElementById("toggle-voting");
 				url.searchParams.append("value", checkBox.checked);
+			} else if (task === "setDateforAAV") {
+				const startDate = document.getElementById("start-date").value;
+				const endDate = document.getElementById("end-date").value;
+
+				if (startDate === "None" && endDate === "None") {
+					url.searchParams.append("startDate", "None");
+					url.searchParams.append("endDate", "None");
+				} else {
+					url.searchParams.append("startDate", startDate);
+					url.searchParams.append("endDate", endDate);
+				}
 			}
 
 			const response = await fetch(url.toString());
 			if (!response.ok) {
 				throw new Error(`Server error: ${response.status}`);
-				outBox.innerText = "An Unexpected Error has occured.";
 			}
 
 			const data = await response.json();
@@ -75,6 +92,7 @@
 		}
 
 		async function toggle_voting() {
+			const outBox = document.getElementById("toggle-output-box");
 			const checkBox = document.getElementById("toggle-voting");
 
 			if (votingToggleLock) {
@@ -86,9 +104,9 @@
 			checkBox.disabled = true;
 
 			try {
-				const result = await fetch_from_server("setActiveVoting");
-				if (!result || !result.success) {
-					outBox.innerText = "A Server-side Script has failed. This cannot be reattempted.";
+				const response = await fetch_from_server("setActiveVoting");
+				if (!response || !response.success) {
+					outBox.innerText = "Error setting toggle value, value has not been sent to server. This cannot be reattempted.";
 				}
 			} catch (err) {
 				console.error("Error toggling voting:", err);
@@ -100,25 +118,80 @@
 		}
 
 		async function display_toggle_button() {
+			const outBox = document.getElementById("main-output-box");
 			const displayBox = document.getElementById("display-toggle");
 			const checkBox = document.getElementById("toggle-voting");
 
-			outBox.innerText = "Loading..."
+			const passkey = document.getElementById("pass");
+			const passSubmit = document.getElementById("submit-passkey");
+
+			outBox.innerText = "Loading...";
+			passkey.disabled = true;
+			passSubmit.disabled = true;
+
 			try {
 				const response = await fetch_from_server("getPasskey");
-				if (await response.valid) {
+				if (response.valid) {
 					if (await load_toggle_state()) {
 						outBox.innerText = "Success!";
 						displayBox.style.display = "inline-block";
 						checkBox.disabled = false;
+					} else {
+						passkey.disabled = false;
+						passSubmit.disabled = false;
 					}
 				} else {
 					outBox.innerText = "Invalid passkey.";
+					passkey.disabled = false;
+					passSubmit.disabled = false;
 				}
 			} catch (err) {
 				console.error("Error getting passkey:", err);
 				outBox.innerText = "Error communicating with server.";
 			}
+		}
+
+		async function set_date() {
+			const outBox = document.getElementById("date-output-box");
+			const startDate = document.getElementById("start-date").value;
+			const endDate = document.getElementById("end-date").value;
+
+			const submitDate = document.getElementById("submit-date");
+			submitDate.disabled = true;
+			if (startDate !== endDate && (startDate === "" || endDate === "")) {
+				outBox.innerText = "Both dates must either be set or unset."
+				submitDate.disabled = false;
+				return;
+			}
+			try {
+				const response = await fetch_from_server("setDateforAAV");
+				if (!response || !response.success) {
+					outBox.innerText = "Error setting date value, value has not been sent to server. This cannot be reattempted.";
+				}
+			} catch (err) {
+				console.error("Error setting date:", err);
+				outBox.innerText = "Error communicating with server.";
+			}
+			submitDate.disabled = false;
+		}
+
+		async function get_date() {
+			const outBox = document.getElementById("date-output-box");
+
+			const getDate = document.getElementById("get-date");
+			getDate.disabled = true;
+			try {
+				const response = await fetch_from_server("getDateforAAV");
+				if (response.startDate !== "None" && response.endDate !== "None") {
+					outBox.innerText = "From " + response.startDate + " To " + response.endDate
+				} else {
+					outBox.innerText = "No date has been set.";
+				}
+			} catch (err) {
+				console.error("Error getting date:", err);
+				outBox.innerText = "Failed to get date, Error communicating with server.";
+			}
+			getDate.disabled = false;
 		}
 	</script>
 </body>

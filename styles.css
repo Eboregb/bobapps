@@ -33,6 +33,11 @@ th, td {
 	text-align: center;
 }
 
+button:disabled, input:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
 .switch-board {
 	border: 1px dashed grey;
 	padding: 15px;
