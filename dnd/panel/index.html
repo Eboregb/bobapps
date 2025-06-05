@@ -73,7 +73,7 @@
 				const startDate = document.getElementById("start-date").value;
 				const endDate = document.getElementById("end-date").value;
 
-				if (startDate === "None" && endDate === "None") {
+				if (startDate === "" && endDate === "") {
 					url.searchParams.append("startDate", "None");
 					url.searchParams.append("endDate", "None");
 				} else {
