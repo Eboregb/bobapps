@@ -31,7 +31,7 @@
 			Automatic activation and deactivation for voting (will override manual toggle)
 			<br>
 			<br>
-			From <input id="start-date" type="date"> To <input id="end-date" type="date">
+			From <input id="start-date" type="date"> Until <input id="end-date" type="date">
 			<br>
 			<button id="submit-date" onclick="set_date()">Submit</button>
 			<button id="get-date" onclick="get_date()">Current Times</button>
@@ -186,7 +186,7 @@
 					var startDate = new Date(response.startDate).toDateString();
 					var endDate = new Date (response.endDate).toDateString();
 					
-					outBox.innerText = "From " + startDate + " To " + endDate;
+					outBox.innerText = "From " + startDate + " Until " + endDate;
 				} else {
 					outBox.innerText = "No date has been set.";
 				}
