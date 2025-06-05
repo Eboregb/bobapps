@@ -183,6 +183,9 @@
 			try {
 				const response = await fetch_from_server("getDateforAAV");
 				if (response.startDate !== "None" && response.endDate !== "None") {
+					var startDate = new Date(response.startDate).toDateString();
+					var endDate = new Date (response.endDate).toDateString();
+					
 					outBox.innerText = "From " + response.startDate + " To " + response.endDate
 				} else {
 					outBox.innerText = "No date has been set.";
