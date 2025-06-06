@@ -48,7 +48,7 @@
 			const checkBox = document.getElementById("toggle-voting");
 
 			try {
-				const checkData = await fetch_from_server("getActiveVoting");
+				const checkData = await fetch_from_server("getActiveVotingReal");
 				checkBox.checked = checkData.checked;
 			} catch (err) {
 				console.error("Failed to fetch voting status:", err);
@@ -64,7 +64,12 @@
 
 			const url = new URL(baseUrl);
 			url.searchParams.append("passkey", passkey);
-			url.searchParams.append("task", task);
+			if (task === "getActiveVotingReal") {
+				url.searchParams.append("task", "getActiveVoting");
+				url.searchParams.append("real", true)
+			} else {
+				url.searchParams.append("task", task);
+			}
 
 			if (task === "setActiveVoting") {
 				const checkBox = document.getElementById("toggle-voting");

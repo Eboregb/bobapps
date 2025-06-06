@@ -3,25 +3,43 @@
 <html>
 <head>
 	<title>Vote for DM | Bob Apps</title>
-	<link rel="stylesheet" href="../styles.css">
+	<link rel="stylesheet" href="../../styles.css">
 </head>
 
 <body>
 	<h1>Vote for D&D Dungeon Master</h1>
-	<h2 id="status-view">Form Status: </h2>
+	<h2 id="status-view">Loading...</h2>
 
-	<iframe id="form" src="https://docs.google.com/forms/d/e/1FAIpQLScycqTCgzFfWXxJrkmVXyvz20IosDH7WKve2mGr9xidK3sFuQ/viewform?embedded=true" width="640" height="1147" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+	<iframe id="form" src="https://docs.google.com/forms/d/e/1FAIpQLScycqTCgzFfWXxJrkmVXyvz20IosDH7WKve2mGr9xidK3sFuQ/viewform?embedded=true" width="640" height="1147" frameborder="0" marginheight="0" marginwidth="0" style="display: none;">Loading…</iframe>
 	<a href="../results/index.html">View Results</a>
 
 	<script>
-		let statusvar = false;
+		window.onload = function() {
+			const activeVotingStatus = fetch_from_server("getActiveVoting");
+			const outBox = document.getElementById("status-view");
+			const form = document.getElementById("form");
 
-		if (statusvar) {
-			document.getElementById("status-view").innerText = "Form Status: Open";
+			if (activeVotingStatus.checked) {
+				outBox.innerText = "Form Status: Open";
+				form.style.display = "block";
+			} else {
+				outBox.innerText = "Form Status: Closed";
+				form.remove();
+			}
 		}
-		else {
-			document.getElementById("status-view").innerText = "Form Status: Closed";
-			document.getElementById("form").remove();
+
+		async function fetch_from_server(task) {
+			const baseUrl = "https://script.google.com/macros/s/AKfycbzhCFdro6Txm_8liWx76xh4kftV7_jLfi45bHNeu-WXdCz-F2XQcVgsFNrPE59WA6lE/exec";
+			const url = new URL(baseUrl);
+			url.searchParams.append("task", task);
+
+			const response = await fetch(url.toString());
+			if (!response.ok) {
+				throw new Error(`Server error: ${response.status}`);
+			}
+
+			const data = await response.json();
+			return data;
 		}
 	</script>
 </body>
