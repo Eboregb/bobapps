@@ -182,7 +182,7 @@
 			getDate.disabled = true;
 			try {
 				const response = await fetch_from_server("getDateforAAV");
-				if (response.startDate !== "" && response.endDate !== "") {
+				if (response.startDate !== "None" && response.endDate !== "None") {
 					var startDate = new Date(response.startDate).toDateString();
 					var endDate = new Date (response.endDate).toDateString();
 					
