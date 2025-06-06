@@ -151,7 +151,7 @@
 					passSubmit.disabled = false;
 				}
 			} catch (err) {
-				console.error("Error getting passkey:", err);
+				console.error("Error fetching passkey:", err);
 				outBox.innerText = "Error communicating with server.";
 			}
 		}
@@ -163,6 +163,7 @@
 
 			const submitDate = document.getElementById("submit-date");
 			submitDate.disabled = true;
+			
 			if (startDate !== endDate && (startDate === "" || endDate === "")) {
 				outBox.innerText = "Both dates must either be set or unset."
 				submitDate.disabled = false;
@@ -173,6 +174,7 @@
 				if (!response || !response.success) {
 					outBox.innerText = "Error setting date value, value has not been sent to server. This cannot be reattempted.";
 				}
+				outBox.innerText = "Success!";
 			} catch (err) {
 				console.error("Error setting date:", err);
 				outBox.innerText = "Error communicating with server.";
@@ -182,9 +184,9 @@
 
 		async function get_date() {
 			const outBox = document.getElementById("date-output-box");
-
 			const getDate = document.getElementById("get-date");
 			getDate.disabled = true;
+
 			try {
 				const response = await fetch_from_server("getDateforAAV");
 				if (response.startDate !== "None" && response.endDate !== "None") {
@@ -196,8 +198,8 @@
 					outBox.innerText = "No date has been set.";
 				}
 			} catch (err) {
-				console.error("Error getting date:", err);
-				outBox.innerText = "Failed to get date, Error communicating with server.";
+				console.error("Error fetching date:", err);
+				outBox.innerText = "Failed to get date, error communicating with server.";
 			}
 			getDate.disabled = false;
 		}

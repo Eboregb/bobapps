@@ -8,24 +8,16 @@
 
 <body>
 	<h1>Vote for D&D Dungeon Master</h1>
-	<h2 id="status-view">Loading...</h2>
+	<div id="status-view">Loading status...</div>
+	<div id="date-view">Loading dates...</div>
 
 	<iframe id="form" src="https://docs.google.com/forms/d/e/1FAIpQLScycqTCgzFfWXxJrkmVXyvz20IosDH7WKve2mGr9xidK3sFuQ/viewform?embedded=true" width="640" height="1147" frameborder="0" marginheight="0" marginwidth="0" style="display: none;">Loading…</iframe>
 	<a href="../results/index.html">View Results</a>
 
 	<script>
 		window.onload = function() {
-			const activeVotingStatus = fetch_from_server("getActiveVoting");
-			const outBox = document.getElementById("status-view");
-			const form = document.getElementById("form");
-
-			if (activeVotingStatus.checked) {
-				outBox.innerText = "Form Status: Open";
-				form.style.display = "block";
-			} else {
-				outBox.innerText = "Form Status: Closed";
-				form.remove();
-			}
+			get_status();
+			get_date();
 		}
 
 		async function fetch_from_server(task) {
@@ -40,6 +32,44 @@
 
 			const data = await response.json();
 			return data;
+		}
+		async function get_status() {
+			const outBox = document.getElementById("status-view");
+			const form = document.getElementById("form");
+				
+			try {
+				const response = await fetch_from_server("getActiveVoting");
+				if (response.checked) {
+					outBox.innerText = "Form Status: Open";
+					form.style.display = "block";
+				} else {
+					outBox.innerText = "Form Status: Closed";
+					form.remove();
+				}
+			} catch (err) {
+				console.log("Error fetching status:" + err);
+				outBox.innerText = "Failed to load status, error communicating with server";
+			}
+		}
+
+		async function get_date() {
+			const outBox = document.getElementById("date-view");
+			
+			try {
+				const response = await fetch_from_server("getDateforAAV");
+				if (response.startDate !== "None" && response.endDate !== "None") {
+					var startDate = new Date(response.startDate).toDateString();
+					var endDate = new Date (response.endDate).toDateString();
+
+					outBox.innerText = "From " + startDate + " Until " + endDate;
+				} else {
+					outBox.innerText = "No date has been set.";
+				}
+			} catch (err) {
+				console.error("Error fetching date:", err);
+				outBox.innerText = "Failed to get date, error communicating with server.";
+			}
+			
 		}
 	</script>
 </body>
