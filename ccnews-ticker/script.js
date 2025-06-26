@@ -1,5 +1,3 @@
-
-
 const news = {
 	normal: [
 		"You feel like making cookies. But nobody wants to eat your cookies.",
