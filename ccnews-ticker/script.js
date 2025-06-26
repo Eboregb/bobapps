@@ -404,6 +404,7 @@ function random_string_input(string) {
 function generate_news() {
 	let article = (random_int(0, 1000) === 777) ? random(news.lucky) : random(news.normal);
 	article = rand_int_string_input(article);
+	article = random_string_input(article);
 
 	for (const word in wordList) {
 		if (wordList.hasOwnProperty(word)) {
