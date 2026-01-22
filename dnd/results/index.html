@@ -18,6 +18,20 @@
 	<div class="vote-table" id="vote-table"></div>
 
 	<script>
+		const publicResult = await fetch_from_server("getResultPublic");
+		
+		if (publicResult.error) {
+				document.getElementById("result").innerText = `Error: ${publicResult.error}`
+		}
+		
+		else if (publicResult.tie) {
+				document.getElementById("result").innerText = `It has been determined to be a tie! The tied candidates are: ${winnerData.candidates.join(", ")}`;
+		} else if (publicResult.winner) {
+				document.getElementById("result").innerText = `The winner is: ${winnerData.winner}!`;
+		} else {
+				document.getElementById("result").innerText = publicResult;
+		}
+	
 		function make_table_box(type, name) {
 			let box = document.createElement(type);
 			box.textContent = name;
@@ -77,8 +91,13 @@
 			passkey.disabled = true;
 			passSubmit.disabled = true;
 		
-			if (!winnerData) {
-				document.getElementById("result").innerText = "Error: Invalid passkey.";
+			if (winnerData.error) {
+				if (winnerData.error === "Unauthorised") {
+					document.getElementById("result").innerText = "Error: Invalid passkey.";
+				} else {
+					document.getElementById("result").innerText = `Error: ${winnerData.error}`
+				}
+				
 				passkey.disabled = false;
 				passSubmit.disabled = false;
 				return;
@@ -86,9 +105,9 @@
 			
 			document.getElementById("show-votes").style.display = "inline-block";
 			if (winnerData.tie) {
-				resultOutput.innerText = "It has been determined to be a tie! The tied candidates are: " + winnerData.candidates.join(", ");
+				resultOutput.innerText = `It has been determined to be a tie! The tied candidates are: ${winnerData.candidates.join(", ")}`;
 			} else if (winnerData.winner) {
-				resultOutput.innerText = "The winner is: " + winnerData.winner + "!";
+				resultOutput.innerText = `The winner is: ${winnerData.winner}!`;
 			} else {
 				resultOutput.innerText = "Unexpected error: No winner or tie info returned.";
 				passkey.disabled = false;
